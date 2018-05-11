@@ -28,7 +28,9 @@ def run_command(args, capture_output=False):
             subprocess.check_call(args)
     except CalledProcessError as e:
         log('Command failed with exit status %d: %s' % (e.returncode, ' '.join(args)))
-        raise
+        if not capture_output:
+            raise
+        return []
 
 
 def run_command_async(args, capture_output=False):

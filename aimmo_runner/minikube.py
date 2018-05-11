@@ -8,6 +8,7 @@ import re
 import socket
 import yaml
 import platform
+import subprocess
 from shell_api import (run_command, create_test_bin, BASE_DIR)
 
 MINIKUBE_EXECUTABLE = "minikube"
@@ -58,19 +59,35 @@ def start_cluster(minikube):
     if 'minikube: Running' in status:
         print('Cluster already running')
     else:
-        run_command([minikube, 'start', '--memory=2048', '--cpus=2'])
+        run_command([minikube, 'start', '--memory=2048', '--cpus=2', '--bootstrapper=kubeadm'])
 
 
 def build_docker_images(minikube):
-    print('Building docker images')
-    raw_env_settings = run_command([minikube, 'docker-env', '--shell="bash"'], False)
-    matches = re.finditer(r'^export (.+)="(.+)"$', raw_env_settings, re.MULTILINE)
-    env = dict([(m.group(1), m.group(2)) for m in matches])
+    """
+    Builds docker images prior to restarting the cluster with new pods.
+    :param minikube: Shell command to open the minikube executable.
+    """
 
-    client = docker.from_env(
-        environment=env,
-        version='auto',
-    )
+    print('Building docker images')
+    # Configure the shell with docker environment variables.
+    # TODO: replace with run_command
+
+    subprocess.check_call('eval $(minikube docker-env)', shell=True)
+
+    raw_env_settings = run_command([minikube, 'docker-env', '--shell="bash"'], True)
+
+    if raw_env_settings:
+        matches = re.finditer(r'^export (.+)="(.+)"$', raw_env_settings, re.MULTILINE)
+        env = dict([(m.group(1), m.group(2)) for m in matches])
+        client = docker.from_env(
+            environment=env,
+            version='auto'
+        )
+    else:
+        # No settings set in the shell therefore running with default environment.
+        client = docker.from_env(
+            version='auto'
+        )
 
     dirs = ('aimmo-game', 'aimmo-game-creator', 'aimmo-game-worker')
     for dir in dirs:
