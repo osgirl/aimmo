@@ -47,6 +47,7 @@ class AvatarWrapper(object):
         return isinstance(self.action, MoveAction)
 
     def _fetch_action(self, state_view):
+        LOGGER.info('INSIDE WRAPPER, GETTING ACTION')
         return requests.post(self.worker_url, json=state_view).json()
 
     def _construct_action(self, data):

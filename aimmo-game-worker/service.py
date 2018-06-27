@@ -29,7 +29,7 @@ def process_turn():
 
 def run(host, port, directory):
     logging.basicConfig(level=logging.DEBUG)
-
+    LOGGER.info('INSIDE RUN FUNCTION')
     with open('{}/options.json'.format(directory)) as option_file:
         options = json.load(option_file)
     from avatar import Avatar
