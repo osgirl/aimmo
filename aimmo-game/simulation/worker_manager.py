@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 import threading
 import time
-
+import py_compile
 import requests
 from eventlet.greenpool import GreenPool
 from eventlet.semaphore import Semaphore
@@ -88,6 +88,7 @@ class WorkerManager(threading.Thread):
         super(WorkerManager, self).__init__()
 
     def get_code(self, player_id):
+        LOGGER.info("GETTING PLAYER'S CODE")
         return self._data.get_code(player_id)
 
     def get_persistent_state(self, player_id):
@@ -131,6 +132,7 @@ class WorkerManager(threading.Thread):
         try:
             LOGGER.info("Waking up")
             game_data = requests.get(self.users_url).json()
+            print game_data
         except (requests.RequestException, ValueError) as err:
             LOGGER.error("Failed to obtain game data : %s", err)
         else:
@@ -190,9 +192,16 @@ class LocalWorkerManager(WorkerManager):
             json.dump(options, options_file)
 
         code = data['code']
+        LOGGER.info('INSIDE CREATE WORKER')
         with open('{}/avatar.py'.format(data_dir), 'w') as avatar_file:
             avatar_file.write(code)
-
+        print avatar_file
+        try:
+            file_name = '{}/avatar.py'.format(data_dir)
+            py_compile.compile(file_name, doraise=True)
+        except py_compile.PyCompileError as e:
+            LOGGER.error('THERE IS A SYNTAX ERROR IN THE CODE, ABORT!')
+            LOGGER.error(e)
         env['PYTHONPATH'] = data_dir
 
         process = subprocess.Popen(['python', 'service.py', self.host, str(port), str(data_dir)], cwd=self.worker_directory, env=env)

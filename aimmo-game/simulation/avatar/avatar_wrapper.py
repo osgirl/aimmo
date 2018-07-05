@@ -6,7 +6,6 @@ from simulation.direction import Direction, NORTH, EAST, WEST, SOUTH
 
 LOGGER = logging.getLogger(__name__)
 
-
 class AvatarWrapper(object):
     """
     The application's view of a character, not to be confused with "Avatar",
@@ -48,9 +47,12 @@ class AvatarWrapper(object):
 
     def _fetch_action(self, state_view):
         LOGGER.info('INSIDE WRAPPER, GETTING ACTION')
-        return requests.post(self.worker_url, json=state_view).json()
+        LOGGER.info(self.worker_url)
+        action = requests.post(self.worker_url, json=state_view).json()
+        return action
 
     def _construct_action(self, data):
+        LOGGER.info('INSIDE WRAPPER, CONSTRUCTING ACTION')
         action_data = data['action']
         action_type = action_data['action_type']
         action_args = action_data.get('options', {})
@@ -75,13 +77,15 @@ class AvatarWrapper(object):
         return direction_of_orientation.cardinal
 
     def decide_action(self, state_view):
+        LOGGER.info("DECIDING AVATAR'S ACTION")
         try:
             data = self._fetch_action(state_view)
             action = self._construct_action(data)
 
         except (KeyError, ValueError) as err:
             LOGGER.info('Bad action data supplied: %s', err)
-        except requests.exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError as e:
+            LOGGER.info(e)
             LOGGER.info('Could not connect to worker, probably not ready yet')
         except Exception:
             LOGGER.exception("Unknown error while fetching turn data")
