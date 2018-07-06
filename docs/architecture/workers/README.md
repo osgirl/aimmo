@@ -39,7 +39,7 @@ def player_data(player_id):
 
 The service runs after the avatar code has been imported from the database as explained above.
 
-Each worker listens to POST requests for processing a turn. The data that the worker receives has the form of a **world map** and an **avatar state**. The user's code is retrieved from the directory that was built during the initialization phase. (see `run.py` above)
+Each worker listens to POST requests for processing a turn. The data that the worker receives has the form of a **world map** and an **avatar state**. The user's code is retrieved from the directory that was built during the initialization phase. (see `run.py` below)
 
 ```python
 from avatar import Avatar

@@ -15,15 +15,18 @@ def main(args, url):
     data_dir = args[1]
     LOGGER.debug('Data dir is %s', data_dir)
 
-    data = requests.get(url).json()
+    print("url is: " + url)
+    requested_stuff = requests.get(url)
+    json_stuff = requested_stuff.json()
 
-    options = data['options']
+    options = json_stuff['options']
     with open('{}/options.json'.format(data_dir), 'w') as options_file:
         json.dump(options, options_file)
 
-    code = data['code']
+    code = json_stuff['code']
     with open('{}/avatar.py'.format(data_dir), 'w') as avatar_file:
         avatar_file.write(code)
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)

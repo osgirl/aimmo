@@ -17,12 +17,17 @@ worker_avatar = None
 @app.route('/turn/', methods=['POST'])
 def process_turn():
     LOGGER.info('Calculating action')
+    LOGGER.info("hit2 /turn/ ")
     data = flask.request.get_json()
 
     world_map = WorldMap(**data['world_map'])
     avatar_state = AvatarState(**data['avatar_state'])
 
-    action = worker_avatar.handle_turn(avatar_state, world_map)
+    try:
+        action = worker_avatar.handle_turn(avatar_state, world_map)
+    except Exception as e:
+        LOGGER.info("Do stuff with the exception in the code.")
+        LOGGER.info(e)
 
     return flask.jsonify(action=action.serialise())
 

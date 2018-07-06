@@ -7,8 +7,9 @@ import subprocess
 import tempfile
 import threading
 import time
-
+import py_compile
 import requests
+
 from eventlet.greenpool import GreenPool
 from eventlet.semaphore import Semaphore
 from pykube import HTTPClient
@@ -68,6 +69,27 @@ class _WorkerManagerData(object):
     def set_main_avatar(self, avatar_id):
         with self._lock:
             self._game_state.main_avatar_id = avatar_id
+
+    def code_is_correct(self, code):
+        """
+        Makes a static code check to see if it's correct. Creates a temporary
+        file as py_compile expects a file as a parameter.
+        :param code: A string containing the code that the user submitted.
+        :return: Boolean indicating if code is correct or has errors.
+        """
+        with self._lock:
+            file_descriptor, path = tempfile.mkstemp()
+
+            # Context manager will close temp_file automatically.
+            with open(str(path), "w") as temp_file:
+                temp_file.write(code)
+
+            try:
+                py_compile.compile(str(path), doraise=True)
+            except py_compile.PyCompileError as e:
+                LOGGER.info(e)
+                return False
+            return True
 
 
 class WorkerManager(threading.Thread):
@@ -139,11 +161,13 @@ class WorkerManager(threading.Thread):
             # Remove users with different code
             users_to_add = []
             for user in game['users']:
-                if self._data.remove_user_if_code_is_different(user):
-                    users_to_add.append(user)
+                if self._data.code_is_correct(code=user['code']):
+                    if self._data.remove_user_if_code_is_different(user):
+                        users_to_add.append(user)
+
             LOGGER.debug("Need to add users: %s" % [x['id'] for x in users_to_add])
 
-            # Add missing users
+            # Add new users & users with different code
             self._parallel_map(self.spawn, users_to_add)
 
             # Delete extra users
