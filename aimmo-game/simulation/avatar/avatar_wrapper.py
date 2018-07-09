@@ -81,7 +81,8 @@ class AvatarWrapper(object):
         try:
             data = self._fetch_action(state_view)
             action = self._construct_action(data)
-
+            print 'ACTION CHOSEN:'
+            print action.direction
         except (KeyError, ValueError) as err:
             LOGGER.info('Bad action data supplied: %s', err)
         except requests.exceptions.ConnectionError as e:

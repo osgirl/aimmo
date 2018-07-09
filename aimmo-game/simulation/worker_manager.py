@@ -36,11 +36,17 @@ class _WorkerManagerData(object):
     def remove_user_if_code_is_different(self, user):
         with self._lock:
             existing_code = self._user_codes.get(user['id'], None)
+            if existing_code is None:
+                return True
             if existing_code != user['code']:
                 # Remove avatar from the game, so it stops being called for turns
                 if existing_code is not None:
-                    self._remove_avatar(user['id'])
-                return True
+                    LOGGER.info("USER CODES:")
+                    print self._user_codes[user['id']]
+                    print user['code']
+                    self._user_codes[user['id']] = user['code']
+                    # self._remove_avatar(user['id'])
+                return False
             else:
                 return False
 
