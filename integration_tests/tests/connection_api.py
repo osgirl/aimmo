@@ -18,8 +18,6 @@ def delete_old_database():
         logging.debug("No database file found.")
         pass
 
-#class Connection():
-
 
 def obtain_csrftoken(session):
     """
@@ -81,7 +79,7 @@ def send_post_request(session, url, data):
     return response
 
 
-def is_server_healthy(url):
+def server_is_healthy(url):
     """
     Function will only return True when the param URL returns a 2xx code. After
     45 seconds, the check assumes a timeout.
@@ -89,18 +87,15 @@ def is_server_healthy(url):
     :return: boolean value to indicate result.
     """
 
-    attempts = 0
-
     logging.debug("Checking if the server is healthy...")
-    while attempts <= 45:
+    for _ in range(45):
         try:
             status_code = requests.get(url).status_code
             if int(str(status_code)[0]) == 2:
                 return True
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             pass
 
-        attempts += 1
         time.sleep(1)
     return False
 
@@ -112,7 +107,7 @@ def _log_in_as_a_superuser():
     all CSRF token exchange.
     """
     url = 'http://localhost:8000/aimmo/accounts/login/'
-    assert(is_server_healthy(url))
+    assert(server_is_healthy(url))
 
     logging.debug("Creating session...")
     session = create_session()
@@ -145,7 +140,7 @@ def create_custom_game_default_settings(name):
 
     url = 'http://localhost:8000/aimmo/games/new/'
 
-    print("is server healthy? ", is_server_healthy(url))
+    print("is server healthy? ", server_is_healthy(url))
 
     csrftoken = session.cookies['csrftoken']
 

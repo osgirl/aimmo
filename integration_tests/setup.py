@@ -14,6 +14,6 @@ setup(
         'psutil',
         'kubernetes == 5.0.0',
     ],
-    test_suite='test_utils.test_suite.DjangoAutoTestSuite',
+    test_suite='tests',
     zip_safe=False,
 )

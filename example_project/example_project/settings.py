@@ -42,6 +42,8 @@ import os
 ALLOWED_HOSTS = ['*']
 
 DEBUG = True
+DEBUG_PROPAGATE_EXCEPTIONS = True
+
 
 DATABASES = {
     'default': {
@@ -90,7 +92,9 @@ LOGGING = {
     'loggers': {
         'views': {
             'handlers': ['console'],
-            'level': 'DEBUG'
+            'level': 'DEBUG',
+            'propagate': True,
+
         },
     }
 }
