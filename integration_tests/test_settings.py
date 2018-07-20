@@ -2,6 +2,10 @@ import os
 dirname = os.path.dirname
 abspath = os.path.abspath
 
+DEBUG = True
+
+ALLOWED_HOSTS = ['*']
+
 db_name = os.path.join(abspath(dirname(dirname(abspath(__file__)))), 'db.sqlite3')
 
 DATABASES = {
@@ -18,6 +22,10 @@ INSTALLED_APPS = [
     'integration_tests',
     'aimmo_runner',
 ]
+
+LOGIN_URL = '/aimmo/accounts/login/'
+
+LOGIN_REDIRECT_URL = '/aimmo/'
 
 PIPELINE_ENABLED = False
 ROOT_URLCONF = 'django_autoconfig.autourlconf'

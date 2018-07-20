@@ -1,12 +1,18 @@
 import os
 import logging
 import unittest
+import time
+
 from django.test.client import Client
 import psutil
+from django.core.urlresolvers import reverse
+import requests
+
 from aimmo_runner import runner
 from connection_api import (create_session, send_get_request, send_post_request,
                             obtain_csrftoken, delete_old_database, is_server_healthy)
-from django.core.urlresolvers import reverse
+
+
 logging.basicConfig(level=logging.WARNING)
 
 
@@ -41,12 +47,19 @@ class TestIntegration(unittest.TestCase):
         Server gets killed at the end of the test.
         """
         url_string = 'aimmo/login'
+        host_name = 'http://localhost:8000'
         delete_old_database()
 
-        os.chdir(runner.ROOT_DIR_LOCATION)
         self.processes = runner.run(use_minikube=False, server_wait=False, capture_output=True, test_env=True)
-        client = Client()
-        response = client.get(reverse(url_string))
+
+        session = requests.Session()
+        print('The url is: ' + reverse(url_string))
+
+        time.sleep(50)
+
+
+        response = session.get(host_name + reverse(url_string))
+
         self.assertEquals(response.status_code, 200)
         csrf_token = response.context['csrf_token']
 
@@ -56,5 +69,5 @@ class TestIntegration(unittest.TestCase):
             'csrftoken': csrf_token,
         }
 
-        response = client.post(reverse(url_string), login_info)
+        response = session.post(reverse(url_string), login_info)
         self.assertEquals(response.status_code, 302)

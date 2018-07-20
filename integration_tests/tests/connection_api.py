@@ -3,7 +3,6 @@ import requests
 import os
 import logging
 
-
 logging.basicConfig(level=logging.WARNING)
 
 
@@ -18,6 +17,8 @@ def delete_old_database():
     except OSError:
         logging.debug("No database file found.")
         pass
+
+#class Connection():
 
 
 def obtain_csrftoken(session):
