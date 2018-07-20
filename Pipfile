@@ -8,6 +8,7 @@ name = "pypi"
 [packages]
 "e1839a8" = {path = ".", editable = true}
 kubernetes = "*"
+django = "==1.10.8"
 
 [requires]
 python_version = "2.7"
