@@ -32,6 +32,6 @@ setup(
         'PyYAML == 3.12',
     ],
     test_suite='setuptest.setuptest.SetupTestSuite',
-    version=4.5,
+    version='0.1.1a0.post0.dev80',
     zip_safe=False,
 )
