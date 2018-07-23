@@ -138,7 +138,8 @@ def create_custom_game_default_settings(name):
     """
     csrftoken, session = _log_in_as_a_superuser()
 
-    url = 'http://localhost:8000/aimmo/games/new/'
+    host = 'http://localhost:8000/'
+    url = host + 'aimmo/games/new/'
 
     print("is server healthy? ", server_is_healthy(url))
 
@@ -147,21 +148,12 @@ def create_custom_game_default_settings(name):
     data = {
         "csrfmiddlewaretoken": csrftoken,
         "name": name,
-        "public": "on",
-        "can_play": "1",
-        "generator": "Main",
-        "target_num_cells_per_avatar": "16",
-        "target_num_score_locations_per_avatar": "0.5",
-        "score_despawn_chance": "0.02",
-        "target_num_pickups_per_avatar": "0.5",
-        "pickup_spawn_chance": "0.02",
-        "obstacle_ratio": "0.1",
-        "start_height": "11",
-        "start_width": "11",
     }
 
     headers = {'X-CSRFToken': csrftoken, 'Referer': 'http://localhost:8000/aimmo/accounts/login/'}
 
     response = session.post(url, data=data, headers=headers)
 
-    return response
+    # Visiting the play url triggers the creation of the worker
+
+    return response, session

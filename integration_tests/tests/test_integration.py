@@ -55,7 +55,7 @@ class TestIntegration(unittest.TestCase):
         login_info = {
             'username': 'admin',
             'password': 'admin',
-            'csrfmiddlewaretoken': session.cookies['token'],
+            'csrfmiddlewaretoken': session.cookies['csrftoken'],
         }
 
         response = session.post(login_url, login_info)
