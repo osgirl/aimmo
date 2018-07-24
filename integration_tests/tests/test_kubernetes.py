@@ -7,7 +7,7 @@ import kubernetes.client
 import psutil
 
 from aimmo_runner import runner
-from connection_api import (delete_old_database, create_custom_game_default_settings, _log_in_as_a_superuser)
+from connection_api import (delete_old_database, create_custom_game_default_settings)
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -46,6 +46,14 @@ class TestKubernetes(unittest.TestCase):
             for child in children:
                 child.terminate()
 
+    @staticmethod
+    def _eventually_true(f, timeout, **f_args):
+        for _ in range(timeout):
+            if f(**f_args):
+                return True
+            time.sleep(1)
+        return False
+
     def test_clean_starting_state_of_cluster(self):
         """
         The purpose of this test is to check the correct number
@@ -56,7 +64,7 @@ class TestKubernetes(unittest.TestCase):
 
         # PODS
         api_response = self.api_instance.list_namespaced_pod("default")
-        self.assertEqual(len(api_response.items), 1, str([item.metadata.name for item in api_response.items]))
+        self.assertEqual(len(api_response.items), 1)
         pod_item = api_response.items[0]
         self.assertTrue(pod_item.metadata.name.startswith("aimmo-game-creator-"))
         self.assertEqual(len(pod_item.metadata.owner_references), 1)
@@ -124,13 +132,7 @@ class TestKubernetes(unittest.TestCase):
         self.assertEqual(code_response.status_code, 200)
 
         # WORKER
-        cluster_ready = False
-        for _ in range(200):
-            if check_cluster_ready(self.api_instance):
-                cluster_ready = True
-                break
-            time.sleep(1)
-
+        cluster_ready = self._eventually_true(check_cluster_ready, 180, api_instance=self.api_instance)
         self.assertTrue(cluster_ready, "Cluster not created!")
 
         # SERVICE
@@ -147,12 +149,28 @@ class TestKubernetes(unittest.TestCase):
         if "game-1" not in rc_names:
             self.fail("Replication controller not created!")
 
-    @unittest.skip("Not Implemented.")
     def test_adding_game_appends_path_to_ingress(self):
         """
         Adding a game (level), will append the correct path to the ingress at /game-1.
         """
-        pass
+
+        def find_path(api_extension_instance, target):
+            api_response = api_extension_instance.list_ingress_for_all_namespaces()
+
+            for item in api_response.items:
+                for rule in item.spec.rules:
+                    for path in rule.http.paths:
+                        if path.path == target:
+                            return True
+            return False
+
+        request_response, session = create_custom_game_default_settings(name='testIngress')
+        code_response = session.get('http://localhost:8000/aimmo/api/code/1/')
+        self.assertEqual(code_response.status_code, 200)
+
+        have_ingress = self._eventually_true(find_path, 180,
+                                             api_extension_instance=self.api_extension_instance, target='/game-1')
+        self.assertTrue(have_ingress, "Ingress not added.")
 
     @unittest.skip("Not Implemented.")
     def test_remove_old_ingress_paths_on_startup(self):

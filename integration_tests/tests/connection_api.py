@@ -154,6 +154,4 @@ def create_custom_game_default_settings(name):
 
     response = session.post(url, data=data, headers=headers)
 
-    # Visiting the play url triggers the creation of the worker
-
     return response, session
