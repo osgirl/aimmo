@@ -25,12 +25,17 @@ PROCESSES = []
 
 def create_superuser_if_missing(username, password):
     from django.contrib.auth.models import User
-    try:
-        User.objects.get_by_natural_key(username)
-    except User.DoesNotExist:
-        log('Creating superuser %s with password %s' % (username, password))
+
+    user = User.objects.filter(username=username)
+
+    if not user.exists():
         User.objects.create_superuser(username=username, email='admin@admin.com',
                                       password=password)
+        print('making user 2')
+        log('Creating superuser %s with password %s' % (username, password))
+    else:
+        user.first().refresh_from_db()
+        print(user.first())
 
 
 def run(use_minikube, server_wait=True, capture_output=False, test_env=False):

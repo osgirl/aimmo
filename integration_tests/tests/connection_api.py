@@ -16,7 +16,6 @@ def delete_old_database():
         logging.debug("Database file in example_project DELETED!")
     except OSError:
         logging.debug("No database file found.")
-        pass
 
 
 def obtain_csrftoken(session):
