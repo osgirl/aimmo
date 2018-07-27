@@ -8,7 +8,6 @@ from simulation.avatar import avatar_wrapper
 from simulation.location import Location
 
 
-
 class MockEffect(object):
     def __init__(self, avatar):
         self.turns = 0
@@ -67,7 +66,8 @@ class TestAvatarWrapper(TestCase):
         if request_mock is None:
             request_mock = ActionRequest()
         with HTTMock(request_mock):
-            self.avatar.decide_action(None)
+            worker_data = self.avatar.fetch_data(None)
+            self.avatar.decide_action(worker_data)
 
     def test_action_has_created_correctly(self):
         self.take_turn()
