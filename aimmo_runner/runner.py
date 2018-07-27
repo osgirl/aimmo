@@ -31,11 +31,8 @@ def create_superuser_if_missing(username, password):
     if not user.exists():
         User.objects.create_superuser(username=username, email='admin@admin.com',
                                       password=password)
-        print('making user 2')
-        log('Creating superuser %s with password %s' % (username, password))
     else:
         user.first().refresh_from_db()
-        print(user.first())
 
 
 def run(use_minikube, server_wait=True, capture_output=False, test_env=False):

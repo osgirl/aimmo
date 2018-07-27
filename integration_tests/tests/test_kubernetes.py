@@ -7,7 +7,7 @@ import kubernetes.client
 import psutil
 
 from aimmo_runner import runner
-from connection_api import (delete_old_database, create_custom_game_default_settings)
+import connection_api
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,13 +20,12 @@ class TestKubernetes(unittest.TestCase):
         between each test to ensure stable state and loads the
         api instance from the kubernetes client.
         """
-        delete_old_database()
+        connection_api.delete_old_database()
 
         # Clear any k8s resources that are still hanging around so that we can precisely test ours
         subprocess.call(['kubectl', 'delete', 'rc', '--all'])
         subprocess.call(['kubectl', 'delete', 'pods', '--all'])
         subprocess.call(['kubectl', 'delete', 'ingress', '--all'])
-        time.sleep(10)
 
         self.processes = runner.run(use_minikube=True, server_wait=False, capture_output=False)
         kubernetes.config.load_kube_config(context='minikube')
@@ -38,14 +37,12 @@ class TestKubernetes(unittest.TestCase):
         Kills the process and its children peacefully.
         """
         for process in self.processes:
-            print(process)
             try:
                 parent = psutil.Process(process.pid)
             except psutil.NoSuchProcess:
                 LOGGER.info('No such process')
                 for child in process.children():
                     child.terminate()
-                    pass
             else:
                 children = parent.children(recursive=True)
                 for child in children:
@@ -154,7 +151,7 @@ class TestKubernetes(unittest.TestCase):
                             return True
             return False
 
-        request_response, session = create_custom_game_default_settings(name="testGame")
+        request_response, session = connection_api.create_custom_game_default_settings(name="testGame")
         self.assertEqual(request_response.status_code, 200)
 
         # Trigger the creation of the worker pod
@@ -183,12 +180,3 @@ class TestKubernetes(unittest.TestCase):
         have_ingress = self._eventually_true(find_path, 180, target='/game-1')
         self.assertTrue(have_ingress, "Ingress not added." + str(self.api_instance.list_namespaced_pod("default")))
 
-
-    @unittest.skip("Not Implemented.")
-    def test_remove_old_ingress_paths_on_startup(self):
-        """
-        A game is created in the minikube instance and ingress path is appended. The
-        cluster is then stopped and started again with a fresh database. When this happens,
-        we check that the ingress paths are returned to default again.
-        """
-        pass

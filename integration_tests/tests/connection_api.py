@@ -90,7 +90,7 @@ def server_is_healthy(url):
     for _ in range(45):
         try:
             status_code = requests.get(url).status_code
-            if int(str(status_code)[0]) == 2:
+            if status_code // 100 == 2:
                 return True
         except requests.exceptions.RequestException:
             pass
@@ -139,8 +139,6 @@ def create_custom_game_default_settings(name):
 
     host = 'http://localhost:8000/'
     url = host + 'aimmo/games/new/'
-
-    print("is server healthy? ", server_is_healthy(url))
 
     csrftoken = session.cookies['csrftoken']
 

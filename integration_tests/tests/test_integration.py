@@ -34,7 +34,6 @@ class TestIntegration(unittest.TestCase):
 
             parent.terminate()
 
-    @unittest.skip('temp')
     def test_superuser_authentication(self):
         """
         A test that will run on a clean & empty database, create all migrations, new
