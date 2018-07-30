@@ -158,11 +158,14 @@ class TestKubernetes(unittest.TestCase):
         # Trigger the creation of the worker pod
         code_response = session.get('http://localhost:8000/aimmo/api/code/1/')
         self.assertEqual(code_response.status_code, 200)
+        print('Api contents: ' + str(code_response.text))
+
 
         # WORKER
         cluster_ready = self._eventually_true(check_cluster_ready, 180)
         print('logs: ')
-        print(subprocess.call(['kubectl', 'logs', '-l', 'app=aimmo-game-creator']))
+        subprocess.call(['kubectl', 'logs', '-l', 'app=aimmo-game-creator'])
+        time.sleep(20)
         self.assertTrue(cluster_ready, "Cluster not created!")
 
         # SERVICE
