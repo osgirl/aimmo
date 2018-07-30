@@ -91,7 +91,9 @@ class GameManager(object):
     def update(self):
         try:
             LOGGER.info("Waking up")
-            games = requests.get(self.games_url).json()
+            response = requests.get(self.games_url)
+            LOGGER.info('Response status: ' + str(response.status_code))
+            games = response.get(self.games_url).json()
         except (requests.RequestException, ValueError) as ex:
             LOGGER.error("Failed to obtain game data")
             LOGGER.exception(ex)

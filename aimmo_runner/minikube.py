@@ -17,11 +17,12 @@ def get_ip():
     """
     Get a single primary IP address. This will not return all IPs in the
     interface. See http://stackoverflow.com/a/28950776/671626
-    :return: Integer with the IP of the user.
+    :return: String with the IP of the user.
     """
     os_name = platform.system()
     if os_name == "Darwin":
-        return socket.gethostbyname(socket.gethostname())
+        s = socket.gethostbyname(socket.gethostname())
+        return s
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -30,10 +31,11 @@ def get_ip():
         # doesn't even have to be reachable
         client_socket.connect(('10.255.255.255', 0))
         IP = client_socket.getsockname()[0]
-    except:
+    except Exception as e:
         IP = '127.0.0.1'
     finally:
         client_socket.close()
+
     return IP
 
 

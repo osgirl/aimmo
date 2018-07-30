@@ -154,6 +154,7 @@ class TestKubernetes(unittest.TestCase):
 
         request_response, session = connection_api.create_custom_game_default_settings(name="testGame")
         self.assertEqual(request_response.status_code, 200)
+        self.assertTrue('sessionid' in session.cookies.keys(), 'Failed to log in successfully')
 
         # Trigger the creation of the worker pod
         code_response = session.get('http://localhost:8000/aimmo/api/code/1/')
