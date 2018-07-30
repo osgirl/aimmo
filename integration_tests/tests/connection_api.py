@@ -125,6 +125,7 @@ def _log_in_as_a_superuser():
     logging.debug("Sending post response...")
 
     response = send_post_request(session, url, login_info)
+    print('Login page: ' + str(response.text))
     assert(response.status_code == 200)
 
     return csrftoken, session
