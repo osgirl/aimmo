@@ -161,6 +161,7 @@ class TestKubernetes(unittest.TestCase):
 
         # WORKER
         cluster_ready = self._eventually_true(check_cluster_ready, 180)
+        print(subprocess.call(['kubectl', 'logs', '-l', 'app=aimmo-game-creator']))
         self.assertTrue(cluster_ready, "Cluster not created!")
 
         # SERVICE
