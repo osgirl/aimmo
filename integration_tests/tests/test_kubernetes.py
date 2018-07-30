@@ -136,6 +136,7 @@ class TestKubernetes(unittest.TestCase):
 
         def check_cluster_ready():
             temp_response = self.api_instance.list_namespaced_pod("default")
+            print(temp_response.items)
             worker_ready = any([item.metadata.name.startswith("aimmo-1-worker") for item in temp_response.items])
             game_ready = any([item.metadata.name.startswith("game-1") for item in temp_response.items])
 
