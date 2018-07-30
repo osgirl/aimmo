@@ -100,6 +100,7 @@ class GameManager(object):
                 id: games[id]
                 for id in self._data.add_new_games(games.keys())
             }
+            LOGGER.debug('Games json: {}'.format(games))
             LOGGER.debug("Need to add games: {}".format(games_to_add))
 
             # Add missing games
