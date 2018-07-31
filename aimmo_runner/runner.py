@@ -20,34 +20,14 @@ _MANAGE_PY = os.path.join(ROOT_DIR_LOCATION, 'example_project', 'manage.py')
 _SERVICE_PY = os.path.join(ROOT_DIR_LOCATION, 'aimmo-game-creator', 'service.py')
 _FRONTEND_BUNDLER_JS = os.path.join(ROOT_DIR_LOCATION, 'game_frontend', 'djangoBundler.js')
 
-PROCESSES = []
-
 
 def create_superuser_if_missing(username, password):
-    django.setup()
-
-    from django.contrib.auth.models import User
-
-    user = User.objects.filter(username=username)
-
-    if not user.exists():
-        print('Creating user 342')
-        User.objects.create_superuser(username=username, email='admin@admin.com',
-                                      password=password)
-    else:
-        assert(user.first().is_superuser)
-        print('User made 342')
-        user.first().refresh_from_db()
-        print('Username: ' + user.first().username)
-        print('Email: ' + user.first().email)
-        print('Password: ' + user.first().password)
-
-    user = User.objects.filter(username=username).first()
-    with open('hashes.txt', 'a') as fp:
-        fp.write(user.password + '\n')
+    run_command(['python', _MANAGE_PY, 'loaddata', 'user_fixture.json'])
 
 
 def run(use_minikube, server_wait=True, capture_output=False, test_env=False):
+    processes = []
+
     logging.basicConfig()
     if test_env:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test_settings")
@@ -81,14 +61,14 @@ def run(use_minikube, server_wait=True, capture_output=False, test_env=False):
     else:
         time.sleep(2)
         game = run_command_async(['python', _SERVICE_PY, '127.0.0.1', '5000'], capture_output=capture_output)
-        PROCESSES.append(game)
+        processes.append(game)
         os.environ['AIMMO_MODE'] = 'threads'
 
     os.environ['NODE_ENV'] = 'development' if settings.DEBUG else 'production'
     server = run_command_async(['python', _MANAGE_PY, 'runserver'] + server_args, capture_output=capture_output)
     frontend_bundler = run_command_async(['node', _FRONTEND_BUNDLER_JS], capture_output=capture_output)
-    PROCESSES.append(server)
-    PROCESSES.append(frontend_bundler)
+    processes.append(server)
+    processes.append(frontend_bundler)
 
     if server_wait is True:
         try:
@@ -98,4 +78,4 @@ def run(use_minikube, server_wait=True, capture_output=False, test_env=False):
 
         server.wait()
 
-    return PROCESSES
+    return processes

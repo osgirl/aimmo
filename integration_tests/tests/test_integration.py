@@ -25,14 +25,16 @@ class TestIntegration(unittest.TestCase):
             try:
                 parent = psutil.Process(process.pid)
             except psutil.NoSuchProcess:
-                return
-
-            children = parent.children(recursive=True)
-
-            for child in children:
-                child.terminate()
-
-            parent.terminate()
+                for child in process.children(recursive=True):
+                    print(child.name)
+                    child.kill()
+            else:
+                children = parent.children(recursive=True)
+                for child in children:
+                    print(child.name)
+                    child.kill()
+            finally:
+                process.kill()
 
     def test_superuser_authentication(self):
         """
@@ -46,7 +48,7 @@ class TestIntegration(unittest.TestCase):
         connection_api.delete_old_database()
         self.processes = runner.run(use_minikube=False, server_wait=False)
 
-        assert(connection_api.server_is_healthy(host_name))
+        self.assertTrue(connection_api.server_is_healthy(host_name))
         session = requests.Session()
         response = session.get(login_url)
         self.assertEquals(response.status_code, 200)

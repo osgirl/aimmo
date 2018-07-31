@@ -3,7 +3,7 @@ import requests
 import os
 import logging
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def delete_old_database():

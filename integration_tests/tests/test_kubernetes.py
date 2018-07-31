@@ -188,10 +188,5 @@ class TestKubernetes(unittest.TestCase):
         have_ingress = self._eventually_true(find_path, 180, target='/game-1')
         self.assertTrue(have_ingress, "Ingress not added." + str(self.api_instance.list_namespaced_pod("default")))
 
-    def test_login(self):
-        request_response, session = connection_api.create_custom_game_default_settings(name="testGame")
-        self.assertEqual(request_response.status_code, 200)
-        print('Testing login')
-        self.assertTrue('sessionid' in session.cookies.keys(), 'Failed to log in successfully')
 
 
