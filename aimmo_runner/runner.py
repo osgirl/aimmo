@@ -24,15 +24,27 @@ PROCESSES = []
 
 
 def create_superuser_if_missing(username, password):
+    django.setup()
+
     from django.contrib.auth.models import User
 
     user = User.objects.filter(username=username)
 
     if not user.exists():
+        print('Creating user 342')
         User.objects.create_superuser(username=username, email='admin@admin.com',
                                       password=password)
     else:
+        assert(user.first().is_superuser)
+        print('User made 342')
         user.first().refresh_from_db()
+        print('Username: ' + user.first().username)
+        print('Email: ' + user.first().email)
+        print('Password: ' + user.first().password)
+
+    user = User.objects.filter(username=username).first()
+    with open('hashes.txt', 'a') as fp:
+        fp.write(user.password + '\n')
 
 
 def run(use_minikube, server_wait=True, capture_output=False, test_env=False):
@@ -43,7 +55,6 @@ def run(use_minikube, server_wait=True, capture_output=False, test_env=False):
         sys.path.append(os.path.join(ROOT_DIR_LOCATION, 'example_project'))
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "example_project.settings")
 
-    django.setup()
     run_command(['pip', 'install', '-e', ROOT_DIR_LOCATION], capture_output=capture_output)
 
     if not test_env:

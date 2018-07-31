@@ -42,14 +42,13 @@ class TestIntegration(unittest.TestCase):
         """
         host_name = 'http://localhost:8000'
         login_url = host_name + '/aimmo/accounts/login/'
-        connection_api.delete_old_database()
 
+        connection_api.delete_old_database()
         self.processes = runner.run(use_minikube=False, server_wait=False)
+
         assert(connection_api.server_is_healthy(host_name))
         session = requests.Session()
-
         response = session.get(login_url)
-
         self.assertEquals(response.status_code, 200)
 
         login_info = {
@@ -60,3 +59,5 @@ class TestIntegration(unittest.TestCase):
 
         response = session.post(login_url, login_info)
         self.assertEquals(response.status_code, 200)
+        self.assertTrue('sessionid' in session.cookies.keys(), 'Failed to log in successfully')
+

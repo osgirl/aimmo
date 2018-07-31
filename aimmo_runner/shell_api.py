@@ -23,9 +23,9 @@ def log(message):
 def run_command(args, capture_output=False):
     try:
         if capture_output:
-            return subprocess.check_output(args)
+            return subprocess.check_output(args, preexec_fn=os.setsid)
         else:
-            subprocess.check_call(args)
+            subprocess.check_call(args, preexec_fn=os.setsid)
     except CalledProcessError as e:
         log('Command failed with exit status %d: %s' % (e.returncode, ' '.join(args)))
         raise
@@ -33,9 +33,9 @@ def run_command(args, capture_output=False):
 
 def run_command_async(args, capture_output=False):
     if capture_output is True:
-        p = subprocess.Popen(args, stdout=FNULL, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(args, stdout=FNULL, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
     else:
-        p = subprocess.Popen(args)
+        p = subprocess.Popen(args, preexec_fn=os.setsid)
     return p
 
 

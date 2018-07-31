@@ -20,6 +20,8 @@ class TestKubernetes(unittest.TestCase):
         between each test to ensure stable state and loads the
         api instance from the kubernetes client.
         """
+
+        time.sleep(30)
         connection_api.delete_old_database()
 
         # Clear any k8s resources that are still hanging around so that we can precisely test ours
@@ -41,14 +43,14 @@ class TestKubernetes(unittest.TestCase):
                 parent = psutil.Process(process.pid)
             except psutil.NoSuchProcess:
                 LOGGER.info('No such process')
-                for child in process.children():
-                    child.terminate()
+                for child in process.children(recursive=True):
+                    child.kill()
             else:
                 children = parent.children(recursive=True)
                 for child in children:
-                    child.terminate()
+                    child.kill()
             finally:
-                process.terminate()
+                process.kill()
 
     @staticmethod
     def _eventually_true(f, timeout, **f_args):
@@ -136,7 +138,6 @@ class TestKubernetes(unittest.TestCase):
 
         def check_cluster_ready():
             temp_response = self.api_instance.list_namespaced_pod("default")
-            print(temp_response.items)
             worker_ready = any([item.metadata.name.startswith("aimmo-1-worker") for item in temp_response.items])
             game_ready = any([item.metadata.name.startswith("game-1") for item in temp_response.items])
 
@@ -186,4 +187,11 @@ class TestKubernetes(unittest.TestCase):
         # INGRESS
         have_ingress = self._eventually_true(find_path, 180, target='/game-1')
         self.assertTrue(have_ingress, "Ingress not added." + str(self.api_instance.list_namespaced_pod("default")))
+
+    def test_login(self):
+        request_response, session = connection_api.create_custom_game_default_settings(name="testGame")
+        self.assertEqual(request_response.status_code, 200)
+        print('Testing login')
+        self.assertTrue('sessionid' in session.cookies.keys(), 'Failed to log in successfully')
+
 
