@@ -3,7 +3,7 @@ import requests
 import os
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def delete_old_database():
@@ -16,25 +16,6 @@ def delete_old_database():
         logging.debug("Database file in example_project DELETED!")
     except OSError:
         logging.debug("No database file found.")
-
-
-def obtain_csrftoken(session):
-    """
-    A CSRF cookie token is required in order to not get a 403 Forbidden response by
-    the post to the inputs.
-    :return: String representing the token.
-    """
-
-    return session.cookies['csrftoken']
-
-
-def create_session():
-    """
-    A integration test utility to create a browser session request for a single test.
-    :return: A session object for requests.
-    """
-
-    return requests.Session()
 
 
 def send_get_request(session, url):
@@ -109,12 +90,12 @@ def _log_in_as_a_superuser():
     assert(server_is_healthy(url))
 
     logging.debug("Creating session...")
-    session = create_session()
+    session = requests.Session()
 
     send_get_request(session, url)
 
     logging.debug("Obtaining CSRF Token...")
-    csrftoken = obtain_csrftoken(session)
+    csrftoken = session.cookies['csrftoken']
 
     login_info = {
         'username': 'admin',
@@ -125,7 +106,6 @@ def _log_in_as_a_superuser():
     logging.debug("Sending post response...")
 
     response = send_post_request(session, url, login_info)
-    print('Login page: ' + str(response.text))
     assert(response.status_code == 200)
 
     return csrftoken, session
