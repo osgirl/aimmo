@@ -162,13 +162,11 @@ class TestKubernetes(unittest.TestCase):
         code_response = session.get('http://localhost:8000/aimmo/api/code/1/')
         self.assertEqual(code_response.status_code, 200)
 
-
-
         # WORKER
-        cluster_ready = self._eventually_true(check_cluster_ready, 180)
+        cluster_ready = self._eventually_true(check_cluster_ready, 180 * 2)
         print('logs: ')
         time.sleep(20)
-        subprocess.call(['kubectl', 'logs', '-l', 'app=aimmo-game-creator'])
+        subprocess.call(['kubectl', 'logs', '-l', 'app=aimmo-game'])
         self.assertTrue(cluster_ready, "Cluster not created!")
 
         # SERVICE
