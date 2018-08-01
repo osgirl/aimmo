@@ -11,6 +11,8 @@ import connection_api
 
 LOGGER = logging.getLogger(__name__)
 
+MIN = 60
+
 
 class TestKubernetes(unittest.TestCase):
     def setUp(self):
@@ -21,7 +23,6 @@ class TestKubernetes(unittest.TestCase):
         api instance from the kubernetes client.
         """
 
-        time.sleep(30)
         connection_api.delete_old_database()
 
         # Clear any k8s resources that are still hanging around so that we can precisely test ours
@@ -74,7 +75,7 @@ class TestKubernetes(unittest.TestCase):
         """
 
         # PODS
-        have_pod = self._eventually_true(self._resource_check, 60, namespace_f=self.api_instance.list_namespaced_pod)
+        have_pod = self._eventually_true(self._resource_check, MIN, namespace_f=self.api_instance.list_namespaced_pod)
         self.assertTrue(have_pod)
 
         api_response = self.api_instance.list_namespaced_pod("default")
@@ -84,7 +85,7 @@ class TestKubernetes(unittest.TestCase):
         self.assertEqual(pod_item.metadata.owner_references[0].kind, "ReplicationController")
 
         # REPLICATION CONTROLLERS
-        have_rc = self._eventually_true(self._resource_check, 60,
+        have_rc = self._eventually_true(self._resource_check, MIN,
                                         namespace_f=self.api_instance.list_namespaced_replication_controller)
         self.assertTrue(have_rc)
 
@@ -93,7 +94,7 @@ class TestKubernetes(unittest.TestCase):
         self.assertTrue(rc_item.metadata.name.startswith("aimmo-game-creator"))
 
         # SERVICES
-        have_service = self._eventually_true(self._resource_check, 60, namespace_f=self.api_instance.list_namespaced_service)
+        have_service = self._eventually_true(self._resource_check, MIN, namespace_f=self.api_instance.list_namespaced_service)
         self.assertTrue(have_service)
 
         api_response = self.api_instance.list_namespaced_service("default")
@@ -107,7 +108,7 @@ class TestKubernetes(unittest.TestCase):
         and only one specific rule, with only one path specified!
         """
 
-        have_ingress = self._eventually_true(self._resource_check, 60,
+        have_ingress = self._eventually_true(self._resource_check, MIN,
                                              namespace_f=self.api_extension_instance.list_namespaced_ingress)
         self.assertTrue(have_ingress)
         api_response = self.api_extension_instance.list_namespaced_ingress("default")
@@ -163,10 +164,11 @@ class TestKubernetes(unittest.TestCase):
         self.assertEqual(code_response.status_code, 200)
 
         # WORKER
-        cluster_ready = self._eventually_true(check_cluster_ready, 180 * 2)
+        cluster_ready = self._eventually_true(check_cluster_ready, MIN * 2)
         print('logs: ')
         time.sleep(20)
         subprocess.call(['kubectl', 'logs', '-l', 'app=aimmo-game'])
+        time.sleep(20)
         self.assertTrue(cluster_ready, "Cluster not created!")
 
         # SERVICE
@@ -184,7 +186,7 @@ class TestKubernetes(unittest.TestCase):
             self.fail("Replication controller not created!")
 
         # INGRESS
-        have_ingress = self._eventually_true(find_path, 180, target='/game-1')
+        have_ingress = self._eventually_true(find_path, MIN * 3, target='/game-1')
         self.assertTrue(have_ingress, "Ingress not added." + str(self.api_instance.list_namespaced_pod("default")))
 
 
