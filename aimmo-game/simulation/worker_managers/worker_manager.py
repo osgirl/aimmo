@@ -5,6 +5,7 @@ import time
 import requests
 from eventlet.greenpool import GreenPool
 from eventlet.semaphore import Semaphore
+from requests.exceptions import ConnectionError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -105,13 +106,16 @@ class WorkerManager(threading.Thread):
         """
         user_id = user['id']
 
-        LOGGER.info("Removing worker for user %s" % user_id)
-        self.remove_worker(user_id)
+        LOGGER.info('Removing worker for user %s' % user_id)
+        try:
+            self.remove_worker(user_id)
+        except ConnectionError as e:
+            LOGGER.error('Unable to delete worker: {}'.format(e))
 
         self._data.set_code(user)
 
         # Spawn worker
-        LOGGER.info("Spawning worker for user %s" % user_id)
+        LOGGER.info('Spawning worker for user %s' % user_id)
         worker_url = self.create_worker(user_id)
 
         return worker_url
