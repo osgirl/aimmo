@@ -30,7 +30,7 @@ class TestKubernetes(unittest.TestCase):
         subprocess.call(['kubectl', 'delete', 'pods', '--all'])
         subprocess.call(['kubectl', 'delete', 'ingress', '--all'])
 
-        self.processes = runner.run(use_minikube=True, server_wait=False, capture_output=False)
+        self.processes = runner.run(use_minikube=True, server_wait=False, capture_output=True)
         kubernetes.config.load_kube_config(context='minikube')
         self.api_instance = kubernetes.client.CoreV1Api()
         self.api_extension_instance = kubernetes.client.ExtensionsV1beta1Api()
@@ -139,7 +139,7 @@ class TestKubernetes(unittest.TestCase):
 
         def check_cluster_ready():
             temp_response = self.api_instance.list_namespaced_pod("default")
-            print(temp_response.items)
+            #print(temp_response.items)
             worker_ready = any([item.metadata.name.startswith("aimmo-1-worker") for item in temp_response.items])
             game_ready = any([item.metadata.name.startswith("game-1") for item in temp_response.items])
 
