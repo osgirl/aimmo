@@ -6,9 +6,9 @@ import flask
 from simulation.avatar_state import AvatarState
 from simulation.world_map import WorldMap
 from avatar_runner import AvatarRunner
+from log_setup import configure_logger
 
 app = flask.Flask(__name__)
-LOGGER = logging.getLogger(__name__)
 
 avatar_runner = None
 
@@ -27,7 +27,7 @@ def process_turn():
 
 
 def run(host, port):
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     global avatar_runner
     avatar_runner = AvatarRunner()
     app.config['DEBUG'] = False
@@ -35,4 +35,6 @@ def run(host, port):
 
 
 if __name__ == '__main__':
+    configure_logger()
+    LOGGER = logging.getLogger(__name__)  # Has to be after configure_logger()
     run(host=sys.argv[1], port=int(sys.argv[2]))

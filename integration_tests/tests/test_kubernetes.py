@@ -1,12 +1,9 @@
-import logging
 import unittest
 import psutil
 import time
 import kubernetes.client
 from aimmo_runner import runner
 from connection_api import (delete_old_database, create_custom_game_default_settings)
-
-logging.basicConfig(level=logging.WARNING)
 
 
 class TestKubernetes(unittest.TestCase):

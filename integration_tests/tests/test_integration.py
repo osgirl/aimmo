@@ -4,16 +4,19 @@ import unittest
 from django.test.client import Client
 import psutil
 from aimmo_runner import runner
-from connection_api import (create_session, send_get_request, send_post_request,
-                            obtain_csrftoken, delete_old_database, is_server_healthy)
+from connection_api import delete_old_database
 from django.core.urlresolvers import reverse
-logging.basicConfig(level=logging.WARNING)
+
+LOGGER = logging.getLogger(__name__)
 
 
 class TestIntegration(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestIntegration, self).__init__(*args, **kwargs)
         self.processes = []
+
+    def setUp(self):
+        LOGGER.disabled = True
 
     def tearDown(self):
         """
@@ -32,6 +35,8 @@ class TestIntegration(unittest.TestCase):
                 child.terminate()
 
             parent.terminate()
+
+        LOGGER.disabled = False
 
     def test_superuser_authentication(self):
         """

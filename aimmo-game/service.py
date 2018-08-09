@@ -10,6 +10,7 @@ import socketio as SocketIO
 from urlparse import parse_qs
 from flask_cors import CORS
 
+from log_setup import configure_logger
 from simulation import map_generator
 from simulation.turn_manager import ConcurrentTurnManager
 from simulation.logs_provider import LogsProvider
@@ -26,8 +27,7 @@ app = flask.Flask(__name__)
 CORS(app, supports_credentials=True)
 socketio_server = SocketIO.Server()
 
-LOGGER = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+LOGGER = None
 
 _default_worker_manager = None
 _default_state_provider = GameStateProvider()
@@ -96,7 +96,6 @@ def send_updates(session_id_to_avatar_id=_default_session_id_to_avatar_id_mappin
                       logs_provider=_default_logs_provider):
     send_game_state(session_id_to_avatar_id)
     send_logs(session_id_to_avatar_id, logs_provider)
-
 
 
 def get_game_state(state_provider=_default_state_provider):
@@ -181,7 +180,8 @@ def run_game(port):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    configure_logger()
+    LOGGER = logging.getLogger(__name__)  # Has to be after configure_logger()
     host, port = sys.argv[1], int(sys.argv[2])
     app = SocketIO.Middleware(socketio_server, app, socketio_path=os.environ.get('SOCKETIO_RESOURCE', 'socket.io'))
 
