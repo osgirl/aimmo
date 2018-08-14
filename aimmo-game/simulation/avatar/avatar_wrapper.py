@@ -46,13 +46,20 @@ class AvatarWrapper(object):
     def is_moving(self):
         return isinstance(self.action, MoveAction)
 
-    def _fetch_action(self, state_view):
-        response = requests.post(self.worker_url, json=state_view)
-        response.raise_for_status()
-        return response.json()
+    def fetch_data(self, state_view):
+        try:
+            response = requests.post(self.worker_url, json=state_view)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.ConnectionError:
+            LOGGER.info('Could not connect to worker, probably not ready yet')
+        except Exception as e:
+            LOGGER.exception("Unknown error while fetching turn data.")
+            LOGGER.exception(e)
 
-    def _construct_action(self, data):
-        action_data = data['action']
+        return {'action': None, 'log': ''}
+
+    def _construct_action(self, action_data):
         action_type = action_data['action_type']
         action_args = action_data.get('options', {})
         action_args['avatar'] = self
@@ -75,18 +82,14 @@ class AvatarWrapper(object):
 
         return direction_of_orientation.cardinal
 
-    def decide_action(self, state_view):
+    def decide_action(self, worker_data):
         try:
-            data = self._fetch_action(state_view)
-            action = self._construct_action(data)
+            action = self._construct_action(worker_data['action'])
 
         except (KeyError, ValueError) as err:
-            LOGGER.info('Bad action data supplied: %s', err)
-        except requests.exceptions.ConnectionError:
-            LOGGER.info('Could not connect to worker, probably not ready yet')
-        except Exception:
-            LOGGER.exception("Unknown error while fetching turn data")
-
+            LOGGER.error('Bad action data supplied: %s', err)
+        except TypeError as err:
+            LOGGER.error('Worker data not received: %s', err)
         else:
             self._action = action
             return True

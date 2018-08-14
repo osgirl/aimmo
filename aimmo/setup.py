@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from setuptools import find_packages, setup
 
-
 setup(
     name='aimmo',
     packages=find_packages(),
@@ -9,17 +8,13 @@ setup(
     install_requires=[
         'eventlet',
         'flask',
-        'flask-socketio',
         'requests',
         'six',
-        'pykube',
     ],
     tests_require=[
         'httmock',
         'mock',
-        'django-setuptest==0.2.1',
-
     ],
-    test_suite='setuptest.setuptest.SetupTestSuite',
+    test_suite='test_utils.test_suite.DjangoAutoTestSuite',
     zip_safe=False,
 )

@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^$', login_required(preview_user_required(TemplateView.as_view(template_name='players/home.html'))), name='aimmo/home'),
 
     url(r'^accounts/login/$', auth_views.login, name='aimmo/login'),
-    url(r'^accounts/logout/$', auth_views.logout, {'next_page' : 'aimmo/logout_success'}, name='aimmo/logout'),
+    url(r'^accounts/logout/$', auth_views.logout, {'next_page': 'aimmo/logout_success'}, name='aimmo/logout'),
     url(r'^accounts/logout_success/$', TemplateView.as_view(template_name='registration/success_logout.html'), name='aimmo/logout_success'),
 
     url(r'^play/(?P<id>[0-9]+)/$', login_required(preview_user_required(views.watch_game)), name='aimmo/play'),
@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^api/code/(?P<id>[0-9]+)/$', views.code, name='aimmo/code'),
     url(r'^api/games/$', views.list_games, name='aimmo/games'),
     url(r'^api/games/(?P<id>[0-9]+)/$', views.get_game, name='aimmo/game_details'),
-    url(r'^api/games/(?P<id>[0-9]+)/connection_parameters/$', views.connection_parameters, name='aimmo/connection_parameters'),
+    url(r'^api/games/(?P<game_id>[0-9]+)/connection_parameters/$', views.connection_parameters, name='aimmo/connection_parameters'),
     url(r'^api/games/(?P<id>[0-9]+)/complete/$', views.mark_game_complete, name='aimmo/complete_game'),
     url(r'^api/games/(?P<game_id>[0-9]+)/current_avatar/$', views.current_avatar_in_game, name='aimmo/current_avatar_in_game'),
 

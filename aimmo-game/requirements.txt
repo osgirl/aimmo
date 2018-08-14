@@ -1,7 +1,7 @@
 eventlet
 flask
-flask-socketio
-pykube
+python-socketio==2.0.0
 requests
 six
 flask-cors
+kubernetes

@@ -18,13 +18,11 @@ setup(
         'flask-socketio',
         'requests',
         'six',
-        'pykube',
         'hypothesis',
         'flask-cors >= 3.0, < 3.1',
         'psutil >= 5.4, < 5.5',
     ],
     tests_require=[
-        'django-setuptest==0.2.1',
         'httmock',
         'mock == 2.0.0',
         'docker == 2.7.0',
@@ -32,6 +30,6 @@ setup(
         'PyYAML == 3.12',
     ],
     test_suite='setuptest.setuptest.SetupTestSuite',
-    version='0.1.1a0.post0.dev98',
+    version='0.1.1a0.post0.dev800',
     zip_safe=False,
 )
