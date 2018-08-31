@@ -1,7 +1,7 @@
 import mock
 from unittest import TestCase
 from requests import Response
-from simulation.worker import Worker
+from simulation.workers.worker import Worker
 
 DEFAULT_RESPONSE_CONTENT = b'{"action": "test_action",' \
                            b'"log": "test_log",' \

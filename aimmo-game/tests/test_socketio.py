@@ -4,7 +4,8 @@ import string
 import mock
 
 import service
-from simulation.worker_managers.local_worker_manager import LocalWorkerManager
+from simulation.worker_manager import WorkerManager
+from simulation.workers.local_worker import LocalWorker
 
 
 class MockGameState(object):
@@ -35,7 +36,7 @@ class TestSocketIO(TestCase):
 
     @mock.patch('service.flask_app')
     def create_game_api(self, flask_app):
-        return service.GameAPI(worker_manager=LocalWorkerManager(),
+        return service.GameAPI(worker_manager=WorkerManager(LocalWorkerManager),
                                game_state=MockGameState())
 
     @mock.patch('service.flask_app')
