@@ -1,15 +1,15 @@
-import atexit
-import itertools
 import logging
 import os
+import itertools
 import subprocess
+import atexit
 
-from .worker_manager import WorkerManager
+from worker import Worker
 
 LOGGER = logging.getLogger(__name__)
 
 
-class LocalWorkerManager(WorkerManager):
+class LocalWorker(Worker):
     """Relies on them already being created already."""
 
     host = '127.0.0.1'
@@ -18,10 +18,11 @@ class LocalWorkerManager(WorkerManager):
         '../../../aimmo-game-worker/',
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, player_id, port):
         self.workers = {}
         self.port_counter = itertools.count(1989)
-        super(LocalWorkerManager, self).__init__(*args, **kwargs)
+        self.port = port
+        super(LocalWorker, self).__init__(player_id)
 
     def create_worker(self, player_id):
         assert(player_id not in self.workers)

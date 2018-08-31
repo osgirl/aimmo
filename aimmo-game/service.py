@@ -13,8 +13,9 @@ from flask_cors import CORS
 
 from simulation import map_generator
 from simulation.avatar.avatar_manager import AvatarManager
-from simulation.worker_managers import WORKER_MANAGERS
+from simulation.workers import WORKERS
 from simulation.game_runner import GameRunner
+from simulation.worker_manager import WorkerManager
 
 eventlet.sleep()
 eventlet.monkey_patch()
@@ -127,8 +128,9 @@ def run_game(port):
     settings = pickle.loads(os.environ['settings'])
     generator = getattr(map_generator, settings['GENERATOR'])(settings)
     game_state = generator.get_game_state(AvatarManager())
-    WorkerManagerClass = WORKER_MANAGERS[os.environ.get('WORKER_MANAGER', 'local')]
-    worker_manager = WorkerManagerClass(port=port)
+    worker_class = WORKERS[os.environ.get('WORKER', 'local')]
+    LOGGER.error('Worker class: {}'.format(worker_class.__name__))
+    worker_manager = WorkerManager(worker_class, port=port)
 
     game_api = GameAPI(worker_manager=worker_manager, game_state=game_state)
 
