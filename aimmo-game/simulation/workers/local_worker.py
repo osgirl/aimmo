@@ -17,6 +17,7 @@ class LocalWorker(Worker):
         os.path.dirname(__file__),
         '../../../aimmo-game-worker/',
     )
+    port_counter = itertools.count(1989)
 
     def __init__(self, player_id, port):
         self.workers = {}
