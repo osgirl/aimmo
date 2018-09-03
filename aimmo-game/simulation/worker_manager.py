@@ -43,7 +43,7 @@ class WorkerManager(object):
         self._parallel_map(self.delete_worker, players_to_delete)
 
     def delete_worker(self, player_id):
-        self.player_id_to_worker[player_id].remove_worker()
+        self.player_id_to_worker[player_id].remove_worker(player_id)
         del self.player_id_to_worker[player_id]
 
     def update_worker_codes(self, players):

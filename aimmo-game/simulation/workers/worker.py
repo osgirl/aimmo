@@ -20,6 +20,10 @@ class Worker(object):
     def create_worker(self, player_id):
         pass
 
+    @abstractmethod
+    def remove_worker(self, player_id):
+        pass
+
     def _set_defaults(self):
         self.log = None
         self.serialised_action = None

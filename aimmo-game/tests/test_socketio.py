@@ -36,7 +36,7 @@ class TestSocketIO(TestCase):
 
     @mock.patch('service.flask_app')
     def create_game_api(self, flask_app):
-        return service.GameAPI(worker_manager=WorkerManager(LocalWorkerManager),
+        return service.GameAPI(worker_manager=WorkerManager(LocalWorker),
                                game_state=MockGameState())
 
     @mock.patch('service.flask_app')

@@ -8,6 +8,7 @@ from .maps import InfiniteMap
 from simulation.avatar.avatar_manager import AvatarManager
 from simulation.game_state import GameState
 from simulation.game_runner import GameRunner
+from simulation.workers.local_worker import LocalWorker
 from .concrete_worker_manager import ConcreteWorkerManager
 
 
@@ -42,7 +43,7 @@ class RequestMock(object):
 class TestGameRunner(TestCase):
     def setUp(self):
         game_state = GameState(InfiniteMap(), AvatarManager())
-        self.game_runner = GameRunner(worker_manager=ConcreteWorkerManager(),
+        self.game_runner = GameRunner(worker_manager=ConcreteWorkerManager(LocalWorker),
                                       game_state=game_state,
                                       end_turn_callback=lambda: None,
                                       django_api_url='http://test')
