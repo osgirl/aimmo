@@ -13,7 +13,8 @@ setup(
         'python-socketio==2.0.0',
         'requests',
         'six',
-        'kubernetes'
+        'kubernetes',
+        'futures'
     ],
     tests_require=[
         'httmock',

@@ -1,7 +1,7 @@
 import logging
 
 from eventlet.greenpool import GreenPool
-from eventlet.semaphore import Semaphore
+from concurrent.futures import ThreadPoolExecutor
 
 from ..worker import Worker
 
@@ -30,6 +30,8 @@ class WorkerManager(object):
     def __init__(self, port=5000):
         self._data = _WorkerManagerData({})
         self._pool = GreenPool(size=3)
+        self.executor = ThreadPoolExecutor()
+        self.future_workers = []
         self.player_id_to_worker = {}
         self.port = port
 
@@ -62,9 +64,27 @@ class WorkerManager(object):
 
     def _parallel_map(self, func, iterable_args):
         return list(self._pool.imap(func, iterable_args))
+    
+    def _worker_added(self, player_id, on_worker_added):
+        def future_callback(future_worker):
+            print("PLAYER_ID IN WORKER ADDED: {}".format(player_id))
+            if future_worker.cancelled():
+                return
+            elif future_worker.done():
+                worker_url_base = future_worker.result()
+                self.player_id_to_worker[player_id] = Worker('{}/turn/'.format(worker_url_base))
+                self.future_workers.remove(player_id)
+                print("FUTURE WORKERS: {}".format(self.future_workers))
+                on_worker_added(player_id)
 
-    def add_workers(self, users_to_add):
-        self._parallel_map(self.add_new_worker, users_to_add)
+        return future_callback
+
+
+    def add_workers(self, users_to_add, on_user_added):
+        for user in users_to_add:
+            future_worker = self.executor.submit(self.create_worker, user)
+            self.future_workers.append(user)
+            future_worker.add_done_callback(self._worker_added(user, on_user_added))
 
     def delete_workers(self, players_to_delete):
         self._parallel_map(self.delete_worker, players_to_delete)

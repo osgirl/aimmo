@@ -24,7 +24,7 @@ class GameRunner(threading.Thread):
 
     def get_users_to_add(self, game_metadata):
         def player_is_new(_player):
-            return _player['id'] not in self.worker_manager.player_id_to_worker.keys()
+            return _player['id'] not in self.worker_manager.player_id_to_worker.keys() and _player['id'] not in self.worker_manager.future_workers
 
         return [player['id'] for player in game_metadata['users'] if player_is_new(player)]
 
@@ -44,9 +44,8 @@ class GameRunner(threading.Thread):
         users_to_add = self.get_users_to_add(game_metadata)
         users_to_delete = self.get_users_to_delete(game_metadata)
 
-        self.worker_manager.add_workers(users_to_add)
+        self.worker_manager.add_workers(users_to_add, self.game_state.add_avatar)
         self.worker_manager.delete_workers(users_to_delete)
-        self.game_state.add_avatars(users_to_add)
         self.game_state.delete_avatars(users_to_delete)
         self.worker_manager.update_worker_codes(game_metadata['users'])
 
