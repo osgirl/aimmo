@@ -39,7 +39,8 @@ class WorkerManager(object):
         return self._data.get_code(player_id)
 
     def fetch_all_worker_data(self, player_id_to_game_state):
-        for player_id, worker in self.player_id_to_worker.iteritems():
+        # Work with the current copy of the list, as the size of the dictionary is changing
+        for player_id, worker in self.player_id_to_worker.items():
             worker.fetch_data(player_id_to_game_state[player_id])
 
     def get_player_id_to_serialised_actions(self):
