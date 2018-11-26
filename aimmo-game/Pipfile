@@ -14,3 +14,13 @@ coverage = "*"
 
 [requires]
 python_version = "3.6.7"
+
+[dev-packages]
+pylint = "*"
+pydocstyle = "*"
+pytest = "*"
+pytest-asyncio = "*"
+asynctest = "*"
+httmock = "*"
+mock = "*"
+hypothesis = "*"
