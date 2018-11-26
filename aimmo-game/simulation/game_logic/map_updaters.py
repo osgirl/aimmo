@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from collections import namedtuple
 import random
 import math
@@ -12,9 +12,7 @@ LOGGER = getLogger(__name__)
 MapContext = namedtuple('MapContext', 'num_avatars')
 
 
-class _MapUpdater:
-    __metaclass__ = ABCMeta
-
+class _MapUpdater(ABC):
     @abstractmethod
     def update(self, world_map, context):
         raise NotImplementedError
@@ -36,7 +34,7 @@ class ScoreLocationUpdater(_MapUpdater):
             cell.generates_score = True
 
 
-class PickupUpdater(_MapUpdater):
+class PickupLocationUpdater(_MapUpdater):
     def update(self, world_map, context):
         target_num_pickups = int(math.ceil(
             context.num_avatars * world_map.settings['TARGET_NUM_PICKUPS_PER_AVATAR']

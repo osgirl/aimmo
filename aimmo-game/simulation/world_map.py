@@ -3,16 +3,14 @@ from logging import getLogger
 
 from simulation.level_settings import DEFAULT_LEVEL_SETTINGS
 from simulation.location import Location
-from simulation.game_logic import SpawnLocationFinder, ScoreLocationUpdater, MapContext, PickupUpdater, MapExpander
+from simulation.game_logic import SpawnLocationFinder, ScoreLocationUpdater, MapContext, PickupLocationUpdater, MapExpander, ScoreRule, PickupRule
 from simulation.cell import Cell
 
 LOGGER = getLogger(__name__)
 
 
 class WorldMap(object):
-    """
-    The non-player world state.
-    """
+    """The non-player world state."""
 
     def __init__(self, grid, settings):
         """
@@ -110,26 +108,14 @@ class WorldMap(object):
         self._update_map(num_avatars)
 
     def _update_avatars(self):
-        self._apply_score()
-        self._apply_pickups()
-
-    def _apply_pickups(self):
-        for cell in self.pickup_cells():
-            if cell.avatar is not None:
-                cell.pickup.apply(cell.avatar)
-
-    def _apply_score(self):
-        for cell in self.score_cells():
-            try:
-                cell.avatar.score += 1
-            except AttributeError:
-                pass
+        ScoreRule().apply(self)
+        PickupRule().apply(self)
 
     def _update_map(self, num_avatars):
         context = MapContext(num_avatars=num_avatars)
         MapExpander().update(self, context=context)
         ScoreLocationUpdater().update(self, context=context)
-        PickupUpdater().update(self, context=context)
+        PickupLocationUpdater().update(self, context=context)
 
     def can_move_to(self, target_location):
         if not self.is_on_map(target_location):
