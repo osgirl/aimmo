@@ -56,7 +56,7 @@ export default class IDEConsole extends Component {
 
   render () {
     return (
-      <StyledConsole innerRef={ref => { this.consoleRef = ref }}>
+      <StyledConsole ref={ref => { this.consoleRef = ref }}>
         <LogEntries
           logs={this.props.logs}
           lastLogRef={ref => { this.lastLogRef = ref }} />
