@@ -19,9 +19,9 @@ export default class GameView extends Component {
   render () {
     return (
       <GameViewLayout>
-        <Unity src='/static/unity/Build/unity.json'
+        {/* <Unity src='/static/unity/Build/unity.json'
           loader='/static/unity/Build/UnityLoader.js'
-          onProgress={this.onProgress} />
+          onProgress={this.onProgress} /> */}
       </GameViewLayout>
     )
   }
